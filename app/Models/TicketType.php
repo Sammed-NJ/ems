@@ -31,6 +31,7 @@ class TicketType extends Model
         return $this->hasMany(Booking::class);
     }
 
+    // shown in the listing and checked before every booking
     public function seatsRemaining(): int
     {
         return $this->quantity - $this->sold;

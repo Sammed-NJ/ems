@@ -18,11 +18,13 @@ class NotifyOrganizerWhenSoldOut implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
+    // only queue it when this booking took the last seat
     public function shouldQueue(BookingConfirmed $event): bool
     {
         return $event->ticketTypeSoldOut;
     }
 
+    // email the organizer of the event
     public function handle(BookingConfirmed $event): void
     {
         $ticketType = $event->booking->ticketType;

@@ -12,8 +12,10 @@ use Illuminate\Support\Facades\Gate;
 
 class BookingController extends Controller
 {
+    // booking rules live in BookingService, the controller only handles HTTP
     public function __construct(private BookingService $bookings) {}
 
+    // the attendee's own bookings
     public function index(Request $request)
     {
         $bookings = $request->user()->bookings()->with(['event', 'ticketType'])->latest()->paginate(10);
@@ -30,6 +32,7 @@ class BookingController extends Controller
 
     public function cancel(Booking $booking): BookingResource
     {
+        // 403 unless it's the attendee's own booking (BookingPolicy)
         Gate::authorize('cancel', $booking);
 
         $booking = $this->bookings->cancel($booking);

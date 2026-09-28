@@ -1,56 +1,54 @@
 # Event Ticket Booking API
 
-Laravel 13 + Sanctum + MySQL.
+A backend for selling event tickets online, built with Laravel.
 
-## Setup
+There are two kinds of users:
 
-```bash
-composer install
-cp .env.example .env
-php artisan key:generate
-php artisan migrate --seed
-php artisan serve
-```
+- **Organizers** create events (a concert, a meetup, a workshop) and decide what tickets to sell, for example 100 "General" tickets at ₹200 and 10 "VIP" tickets at ₹500.
+- **Attendees** browse upcoming events, book tickets and cancel them if their plans change.
 
-Queue worker and scheduler:
+It is an API only, with no screens. A website or mobile app would talk to it, and it can be tried out with Postman (see [docs/SETUP.md](docs/SETUP.md)).
 
-```bash
-php artisan queue:work --queue=emails,reports
-php artisan schedule:work
-```
+## What it does
 
-Mail driver is `log`, emails go to `storage/logs/laravel.log`.
+**Accounts**
+- Anyone can sign up as an organizer or an attendee, log in and log out.
 
-Tests: `php artisan test`
+**For organizers**
+- Create, edit and delete their own events, each with one or more ticket types.
+- Keep an event as a draft until it is ready, then publish it.
+- They can't touch another organizer's events.
+- An event can't be deleted once people have bought tickets for it.
+- They get an email the moment a ticket type sells out.
 
-## Seed users
+**For attendees**
+- See all published, upcoming events, search by name or date, 10 per page, with how many seats are left.
+- Book up to 5 tickets per event.
+- Get a confirmation email after booking.
+- Cancel up to 24 hours before the event. The seats go back on sale straight away.
+- Get a reminder email the day before the event.
 
-Password for all: `password`
+## The rules it protects
 
-- organizer@test.com (organizer)
-- attendee1@test.com (attendee)
-- attendee2@test.com (attendee)
+| Rule | What happens |
+|---|---|
+| Never sell more tickets than exist | Even if many people click "book" on the last seat at the same moment, only the right number of bookings go through. The rest get a clear "no seats left" message. |
+| Price is decided by the system | The total is always calculated on the server, so nobody can send a fake lower price. |
+| Max 5 tickets per person per event | Counted across all their bookings, so it can't be bypassed by booking several times. |
+| No booking for past or draft events | Only live, upcoming events can be booked. |
+| Emails never go out for a failed booking | If saving a booking fails, no confirmation or sold-out email is sent. |
+| One reminder per booking | Even if the reminder process runs twice, nobody gets the same reminder twice. |
 
-## Postman
+## Behind the scenes
 
-Import `postman/EMS.postman_collection.json`. Login request saves the token automatically.
+Emails and sales reports run in the background, so booking stays fast. The reminder check runs automatically every hour and can handle tens of thousands of bookings.
 
-## Endpoints
+Every rule above is covered by automated tests. It was also checked by hand against a real MySQL database, including 8 people trying to buy the last 2 seats at the same moment: exactly 2 succeeded.
 
-| Method | URL | Access |
-|---|---|---|
-| POST | /api/register | guest |
-| POST | /api/login | guest |
-| POST | /api/logout | logged in |
-| GET | /api/events | public |
-| GET, POST | /api/organizer/events | organizer |
-| GET, PUT, DELETE | /api/organizer/events/{id} | owner |
-| GET, POST | /api/bookings | attendee |
-| POST | /api/bookings/{id}/cancel | owner |
+## Tech
 
-## Notes
+Laravel 13, Laravel Sanctum (login tokens), MySQL, database queues, scheduled commands, PHPUnit tests.
 
-- Booking locks the event and ticket type rows (`lockForUpdate`) inside a transaction, so tickets can't be oversold.
-- `BookingConfirmed` / `BookingCancelled` use `ShouldDispatchAfterCommit`, listeners don't run if the transaction fails.
-- Emails run on the `emails` queue, sales stats on the `reports` queue.
-- Reminder job sets `reminder_sent_at` with a conditional update, so each booking gets only one reminder.
+## Running it
+
+See **[docs/SETUP.md](docs/SETUP.md)** for step-by-step setup, running and testing with Postman.

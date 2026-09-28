@@ -14,6 +14,7 @@ use Illuminate\Validation\ValidationException;
 
 class OrganizerEventController extends Controller
 {
+    // only the logged-in organizer's own events
     public function index(Request $request)
     {
         $events = $request->user()->events()->with('ticketTypes')->latest()->paginate(10);
@@ -23,6 +24,7 @@ class OrganizerEventController extends Controller
 
     public function store(StoreEventRequest $request): JsonResponse
     {
+        // event and its ticket types are saved together or not at all
         $event = DB::transaction(function () use ($request) {
             $event = $request->user()->events()->create($request->safe()->except('ticket_types'));
             $event->ticketTypes()->createMany($request->validated('ticket_types'));
@@ -35,6 +37,7 @@ class OrganizerEventController extends Controller
 
     public function show(Event $event): EventResource
     {
+        // 403 unless the organizer owns this event (EventPolicy)
         Gate::authorize('view', $event);
 
         return new EventResource($event->load('ticketTypes'));
@@ -53,6 +56,7 @@ class OrganizerEventController extends Controller
     {
         Gate::authorize('delete', $event);
 
+        // can't delete once people have confirmed bookings
         if ($event->bookings()->where('status', 'confirmed')->exists()) {
             throw ValidationException::withMessages(['event' => 'An event with confirmed bookings cannot be deleted.']);
         }

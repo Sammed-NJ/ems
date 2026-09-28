@@ -18,11 +18,13 @@ class SendBookingCancellation implements ShouldQueue
 
     public $deleteWhenMissingModels = true;
 
+    // email the attendee
     public function handle(BookingCancelled $event): void
     {
         $event->booking->user->notify(new BookingCancelledNotification($event->booking));
     }
 
+    // runs after all retries fail
     public function failed(BookingCancelled $event, Throwable $exception): void
     {
         Log::error('Booking cancellation email failed', ['booking_id' => $event->booking->id, 'error' => $exception->getMessage()]);

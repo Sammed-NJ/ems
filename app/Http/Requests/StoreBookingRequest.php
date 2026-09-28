@@ -10,6 +10,7 @@ class StoreBookingRequest extends FormRequest
     {
         return [
             'ticket_type_id' => ['required', 'integer', 'exists:ticket_types,id'],
+            // quick check here, the real per-event limit is in BookingService
             'quantity' => ['required', 'integer', 'min:1', 'max:5'],
         ];
     }

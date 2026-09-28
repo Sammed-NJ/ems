@@ -18,7 +18,9 @@ class EventResource extends JsonResource
             'venue' => $this->venue,
             'starts_at' => $this->starts_at,
             'status' => $this->status,
+            // included only when ticket types were eager loaded
             'ticket_types' => TicketTypeResource::collection($this->whenLoaded('ticketTypes')),
+            // sales numbers only shown to the event's organizer
             'tickets_sold' => $this->when($isOwner, $this->tickets_sold),
             'revenue' => $this->when($isOwner, $this->revenue),
         ];

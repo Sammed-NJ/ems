@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+// user_id, tickets_sold and revenue are set by the server only
 #[Fillable(['title', 'description', 'venue', 'starts_at', 'status'])]
 class Event extends Model
 {
