@@ -61,7 +61,7 @@ How I used it:
 - **Docs and tooling:** it drafted the README, `docs/SETUP.md` and the Postman collection.
 - **Testing:** it helped write the feature tests and a script that checked every point in the brief against MySQL, including 8 users booking the last 2 seats at the same time.
 
-I reviewed the code, ran and tested it myself in Postman, and committed it feature by feature. I can walk through any part of it.
+I reviewed the code and ran and tested it myself in Postman. I can walk through any part of it.
 
 ## Running it
 
