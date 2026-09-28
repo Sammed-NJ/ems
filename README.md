@@ -49,6 +49,10 @@ Every rule above is covered by automated tests. It was also checked by hand agai
 
 Laravel 13, Laravel Sanctum (login tokens), MySQL, database queues, scheduled commands, PHPUnit tests.
 
+## Use of AI
+
+As allowed in the brief, I used an AI assistant while building this: for writing parts of the code, the seed data, the documentation, the Postman collection and the tests. I set the direction, reviewed and tested everything against the requirements, and can walk through any part of it.
+
 ## Running it
 
 See **[docs/SETUP.md](docs/SETUP.md)** for step-by-step setup, running and testing with Postman.
