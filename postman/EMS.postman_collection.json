@@ -1,0 +1,148 @@
+{
+  "info": {
+    "name": "Event Ticket Booking API",
+    "description": "Run 'Login as organizer' or 'Login as attendee' first. The login request saves the token into the {{token}} collection variable automatically.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://127.0.0.1:8000/api" },
+    { "key": "token", "value": "" },
+    { "key": "event_id", "value": "1" },
+    { "key": "ticket_type_id", "value": "1" },
+    { "key": "booking_id", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": { "type": "text/javascript", "exec": ["pm.request.headers.upsert({ key: 'Accept', value: 'application/json' });"] }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/register",
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"New Attendee\",\n  \"email\": \"new@test.com\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"role\": \"attendee\"\n}" }
+          }
+        },
+        {
+          "name": "Login as organizer",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('token', pm.response.json().token);"] } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"organizer@test.com\",\n  \"password\": \"password\"\n}" }
+          }
+        },
+        {
+          "name": "Login as attendee",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": ["pm.collectionVariables.set('token', pm.response.json().token);"] } }],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/login",
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"attendee1@test.com\",\n  \"password\": \"password\"\n}" }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": { "method": "POST", "header": [], "url": "{{base_url}}/logout" }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "item": [
+        {
+          "name": "List events (with filters)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/events?search=&from=&to=&page=1",
+              "host": ["{{base_url}}"],
+              "path": ["events"],
+              "query": [
+                { "key": "search", "value": "" },
+                { "key": "from", "value": "", "description": "YYYY-MM-DD" },
+                { "key": "to", "value": "", "description": "YYYY-MM-DD" },
+                { "key": "page", "value": "1" }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Organizer events",
+      "item": [
+        {
+          "name": "My events",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/organizer/events" }
+        },
+        {
+          "name": "Create event",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/organizer/events",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Tech Conference\",\n  \"description\": \"Full day of talks\",\n  \"venue\": \"Kochi\",\n  \"starts_at\": \"2027-01-15 10:00:00\",\n  \"status\": \"published\",\n  \"ticket_types\": [\n    { \"name\": \"General\", \"price\": 500, \"quantity\": 100 },\n    { \"name\": \"VIP\", \"price\": 1500, \"quantity\": 10 }\n  ]\n}" }
+          }
+        },
+        {
+          "name": "Show event",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/organizer/events/{{event_id}}" }
+        },
+        {
+          "name": "Update event",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/organizer/events/{{event_id}}",
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated title\",\n  \"status\": \"published\"\n}" }
+          }
+        },
+        {
+          "name": "Delete event",
+          "request": { "method": "DELETE", "header": [], "url": "{{base_url}}/organizer/events/{{event_id}}" }
+        }
+      ]
+    },
+    {
+      "name": "Attendee bookings",
+      "item": [
+        {
+          "name": "My bookings",
+          "request": { "method": "GET", "header": [], "url": "{{base_url}}/bookings" }
+        },
+        {
+          "name": "Book tickets",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/bookings",
+            "body": { "mode": "raw", "raw": "{\n  \"ticket_type_id\": {{ticket_type_id}},\n  \"quantity\": 2\n}" }
+          }
+        },
+        {
+          "name": "Cancel booking",
+          "request": { "method": "POST", "header": [], "url": "{{base_url}}/bookings/{{booking_id}}/cancel" }
+        }
+      ]
+    }
+  ]
+}
