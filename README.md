@@ -51,7 +51,17 @@ Laravel 13, Laravel Sanctum (login tokens), MySQL, database queues, scheduled co
 
 ## Use of AI
 
-As allowed in the brief, I used an AI assistant while building this: for writing parts of the code, the seed data, the documentation, the Postman collection and the tests. I set the direction, reviewed and tested everything against the requirements, and can walk through any part of it.
+As allowed in the brief, I used **Claude (Anthropic), through Claude Code in VS Code**, as a coding assistant.
+
+How I used it:
+
+- **Planning:** broke the brief into features and checked the tricky parts with it (overselling, firing events only after commit, one reminder per booking).
+- **Decisions I made:** API only with no UI, standard Laravel structure with the booking rules in a `BookingService`, MySQL, and all sample data through the seeder instead of manual DB entries.
+- **Code:** it wrote parts of the code to my instructions: migrations, models, controllers, the booking service, listeners, the reminder job, the seed data and the tests.
+- **Docs and tooling:** it drafted the README, `docs/SETUP.md` and the Postman collection.
+- **Testing:** it helped write the feature tests and a script that checked every point in the brief against MySQL, including 8 users booking the last 2 seats at the same time.
+
+I reviewed the code, ran and tested it myself in Postman, and committed it feature by feature. I can walk through any part of it.
 
 ## Running it
 
